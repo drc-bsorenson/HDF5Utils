@@ -2,6 +2,7 @@ import tables as tb
 import re
 import yaml
 from functools import partial
+from itertools import count
 
 FILTERS = tb.Filters(9, 'blosc')
 
@@ -68,8 +69,12 @@ def get_fw_col_type(specs, pos):
     return slc, col_type(pos=pos)
 
 
-def get_csv_col_types(specs, pos):
+def get_csv_col_types(specs, table_pos, file_pos=None):
     dflt = None
+
+    if file_pos is None:
+        file_pos = table_pos
+
     if isinstance(specs, list):
         col_type_abrv, dflt = specs
     else:
@@ -83,9 +88,9 @@ def get_csv_col_types(specs, pos):
         col_type = partial(col_type, length)
 
     if dflt is not None:
-        return pos, col_type(pos=pos, dflt=dflt)
+        return file_pos, col_type(pos=table_pos, dflt=dflt)
 
-    return pos, col_type(pos=pos)
+    return file_pos, col_type(pos=table_pos)
 
 
 def get_description_from_yaml(yaml_fname, encoding='utf-8'):
@@ -94,11 +99,18 @@ def get_description_from_yaml(yaml_fname, encoding='utf-8'):
     type_getter = get_fw_col_type if is_fw else get_csv_col_types
     my_loc_dict = {}
     columns = preprocess_columns(layout)
+    table_pos_iter = count()
     for i, col in enumerate(columns):
         ((col_name, specs),) = col.items()
         if specs is not None:
-            my_loc_dict[col_name] = type_getter(specs, i)
+            my_loc_dict[col_name] = type_getter(specs, next(table_pos_iter), i)
     return my_loc_dict
+
+
+def get_file_and_table_description(loc_dict):
+    file_descr = {field: val[0] for field, val in loc_dict.items()}
+    table_descr = {field: val[1] for field, val in loc_dict.items()}
+    return file_descr, table_descr
 
 
 def write_fields(table, rows):
