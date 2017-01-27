@@ -96,14 +96,18 @@ def get_csv_col_types(specs, table_pos, file_pos=None):
 def get_description_from_yaml(yaml_fname, encoding='utf-8'):
     layout = yaml.load(open(yaml_fname, encoding=encoding))
     is_fw = layout.get('delimiter') is None
-    type_getter = get_fw_col_type if is_fw else get_csv_col_types
     my_loc_dict = {}
     columns = preprocess_columns(layout)
     table_pos_iter = count()
     for i, col in enumerate(columns):
         ((col_name, specs),) = col.items()
         if specs is not None:
-            my_loc_dict[col_name] = type_getter(specs, next(table_pos_iter), i)
+            table_pos = next(table_pos_iter)
+            if is_fw:
+                field_descr = get_fw_col_type(specs, table_pos)
+            else:
+                field_descr = get_csv_col_types(specs, table_pos, i)
+            my_loc_dict[col_name] = field_descr
     return my_loc_dict
 
 
