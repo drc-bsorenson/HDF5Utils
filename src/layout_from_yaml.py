@@ -1,16 +1,17 @@
-import tables as tb
 import re
-import yaml
 from functools import partial
 from itertools import count
 
-FILTERS = tb.Filters(9, 'blosc')
+import tables as tb
+import yaml
+
+FILTERS = tb.Filters(5, 'blosc')
 
 type_dict = {
-    's' : tb.StringCol,
-    'f' : tb.Float64Col,
-    'i' : tb.Int64Col,
-    'b' : tb.BoolCol
+    's': tb.StringCol,
+    'f': tb.Float64Col,
+    'i': tb.Int64Col,
+    'b': tb.BoolCol
 }
 
 
@@ -32,9 +33,10 @@ def mangle_dupes(columns):
 def reformat_names(columns):
     out = []
     for col in columns:
-        ((colname, type_),) = col.items()
+        ((colname, type_), ) = col.items()
         reformatted = re.sub(r'\W+', '_', colname).strip('_')
-        reformatted = '_' + reformatted if reformatted[0].isdigit() else reformatted
+        reformatted = '_' + reformatted if reformatted[
+            0].isdigit() else reformatted
         out.append({reformatted: type_})
     return out
 
@@ -100,7 +102,7 @@ def get_description_from_yaml(yaml_fname, encoding='utf-8'):
     columns = preprocess_columns(layout)
     table_pos_iter = count()
     for i, col in enumerate(columns):
-        ((col_name, specs),) = col.items()
+        ((col_name, specs), ) = col.items()
         if specs is not None:
             table_pos = next(table_pos_iter)
             if is_fw:
