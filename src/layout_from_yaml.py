@@ -56,7 +56,6 @@ def get_fw_col_type(specs, pos):
         col_type_slice, dflt = specs
     else:
         col_type_slice = specs
-
     type_key, slc_range = col_type_slice[0], col_type_slice[1:].split('-')
     col_type = type_dict[type_key]
 
@@ -82,7 +81,6 @@ def get_csv_col_types(specs, table_pos, file_pos=None):
         col_type_abrv, dflt = specs
     else:
         col_type_abrv = specs
-
     type_key = col_type_abrv[0]
     col_type = type_dict[type_key]
 
