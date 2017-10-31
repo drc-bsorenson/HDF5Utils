@@ -30,11 +30,11 @@ def mangle_dupes(columns):
     return new_cols
 
 
-def reformat_names(columns):
+def reformat_names(columns, col_sep):
     out = []
     for col in columns:
         ((colname, type_), ) = col.items()
-        reformatted = re.sub(r'\W+', '_', colname).strip('_')
+        reformatted = re.sub(r'\W+', col_sep, colname).strip(col_sep)
         reformatted = '_' + reformatted if reformatted[
             0].isdigit() else reformatted
         out.append({reformatted: type_})
@@ -43,8 +43,9 @@ def reformat_names(columns):
 
 def preprocess_columns(layout):
     columns = layout['columns']
+    col_sep = layout.get('colname_delimiter', '_')
     if layout.get('reformat_names', True):
-        columns = reformat_names(columns)
+        columns = reformat_names(columns, col_sep)
     return mangle_dupes(columns)
 
 
