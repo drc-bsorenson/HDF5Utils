@@ -1,7 +1,7 @@
 import re
 from functools import partial
 from itertools import count
-
+from collections import defaultdict
 import tables as tb
 import yaml
 
@@ -16,16 +16,16 @@ type_dict = {
 
 
 def mangle_dupes(columns):
-    seen = set()
+    seen = defaultdict(int)
     new_cols = []
     for col in columns:
-        i = 1
         name, type_ = next(iter(col.items()))
         new_name = name
-        while new_name in seen:
-            new_name = name + '_%d' % i
+        i = 0
+        while seen[new_name]:
+            new_name = name + '_%d' % (seen[name] + i)
             i += 1
-        seen.add(new_name)
+        seen[new_name] += 1
         new_cols.append({new_name: type_})
     return new_cols
 
